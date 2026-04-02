@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO-Аудит · vcolorite.ru</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Manrope:wght@400;600;800&display=swap');
+:root {
+  --bg: #08080d; --card: #111118; --border: #1e1e2e; --text: #d4d4e8;
+  --muted: #6b6b8a; --white: #f0f0ff; --accent: #818cf8; --accentD: #818cf822;
+  --red: #f87171; --redD: #f8717115; --orange: #fbbf24; --orangeD: #fbbf2415;
+  --green: #34d399; --greenD: #34d39915; --cyan: #22d3ee; --cyanD: #22d3ee15;
+  --purple: #a78bfa; --pink: #f472b6; --teal: #2dd4bf;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Header */
+.header { background: linear-gradient(135deg, #818cf810, #f8717108); border-bottom: 1px solid var(--border); padding: 20px 24px; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin: 0 auto; }
+.header h1 { font-size: 28px; font-weight: 900; color: var(--white); margin-top: 2px; }
+.header .sub { font-size: 11px; color: var(--accent); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.header .desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.stats { display: flex; gap: 8px; }
+.stat { text-align: center; padding: 6px 16px; border-radius: 8px; }
+.stat .n { font-size: 20px; font-weight: 900; }
+.stat .l { font-size: 9px; font-weight: 700; letter-spacing: .06em; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid var(--border); max-width: 1100px; margin: 0 auto; overflow-x: auto; }
+.tab { padding: 12px 18px; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; font-family: inherit; transition: all .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .badge { font-size: 10px; background: var(--card); padding: 1px 7px; border-radius: 10px; margin-left: 5px; }
+.tab.active .badge { background: var(--accentD); color: var(--accent); }
+
+/* Content */
+.content { padding: 20px 24px; max-width: 1100px; margin: 0 auto; }
+.hidden { display: none !important; }
+
+/* Page selector */
+.page-btns { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.page-btn { padding: 7px 16px; font-size: 12px; font-weight: 700; background: var(--card); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.page-btn:hover { background: var(--border); }
+.page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* URL bar */
+.url-bar { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; background: var(--card); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 14px; }
+
+/* Problems */
+.problem { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 4px; }
+.problem .text { font-size: 12px; line-height: 1.6; }
+.sev { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 3px; letter-spacing: .08em; white-space: nowrap; flex-shrink: 0; }
+.sev-c { color: var(--red); background: var(--redD); }
+.sev-h { color: var(--orange); background: var(--orangeD); }
+.sev-m { color: var(--cyan); background: var(--cyanD); }
+
+/* Wireframes */
+.wires { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+.wire { flex: 1; min-width: 300px; }
+.wire-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+.wire-frame { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
+.wire-chrome { display: flex; align-items: center; gap: 4px; padding: 4px 6px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.wire-bar { flex: 1; height: 14px; background: var(--card); border-radius: 4px; margin-left: 8px; }
+
+/* Wireframe block */
+.wf-block { border-radius: 6px; padding: 0 10px; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; position: relative; overflow: hidden; }
+.wf-block .label { font-size: 11px; }
+.wf-block.problem-block { border-color: rgba(248,113,113,.3) !important; }
+.wf-block.problem-block .label { color: var(--red); font-weight: 600; }
+.wf-block .warn { position: absolute; right: 8px; font-size: 9px; color: var(--red); font-weight: 700; }
+
+/* Tag */
+.tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: .04em; white-space: nowrap; flex-shrink: 0; }
+
+/* Hero comparison */
+.hero-cmp { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px; }
+.hero-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+.hero-btn { padding: 5px 14px; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; font-family: inherit; border: 1px solid var(--border); background: transparent; color: var(--muted); transition: all .15s; }
+.hero-btn.active-now { background: var(--redD); color: var(--red); border-color: rgba(248,113,113,.3); }
+.hero-btn.active-new { background: var(--greenD); color: var(--green); border-color: rgba(52,211,153,.3); }
+.hero-text { font-size: 13px; line-height: 1.8; white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; padding: 12px; background: var(--bg); border-radius: 6px; }
+.hero-text-now { color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+.hero-text-new { color: var(--green); border: 1px solid rgba(52,211,153,.2); }
+
+/* Bottleneck */
+.bn-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 8px; display: flex; gap: 14px; }
+.bn-num { font-size: 20px; font-weight: 900; color: var(--border); min-width: 28px; text-align: right; line-height: 1; }
+.bn-title { font-size: 14px; font-weight: 800; color: var(--white); }
+.bn-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 4px 0 8px; }
+.bn-fix { font-size: 12px; color: var(--green); line-height: 1.5; padding: 6px 10px; background: var(--greenD); border-radius: 5px; border-left: 3px solid var(--green); }
+
+/* TODO */
+.section-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.todo-row { display: grid; grid-template-columns: 1fr 90px 80px 130px; gap: 8px; align-items: center; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; margin-bottom: 4px; }
+.todo-row .what { font-weight: 600; }
+.content-task { padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+.content-task .num { color: var(--purple); font-weight: 800; }
+
+/* Component library */
+.comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.comp-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.comp-card .title { font-size: 13px; font-weight: 700; color: var(--white); margin: 6px 0 4px; }
+.comp-card .desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* Overview cards */
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.ov-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.ov-card .label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+.ov-card p { font-size: 13px; line-height: 1.7; }
+.finding { background: linear-gradient(135deg, rgba(248,113,113,.06), rgba(129,140,248,.06)); border: 1px solid rgba(248,113,113,.2); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.finding h3 { font-size: 16px; font-weight: 800; color: var(--red); margin-bottom: 10px; }
+.finding p { font-size: 14px; line-height: 1.8; }
+.segment { font-size: 12px; padding: 5px 10px; background: var(--accentD); border-radius: 6px; border-left: 3px solid var(--accent); margin-bottom: 4px; }
+
+@media (max-width: 700px) {
+  .wires { flex-direction: column; }
+  .todo-row { grid-template-columns: 1fr; gap: 4px; }
+  .header-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-row">
+    <div>
+      <div class="sub">CRO-аудит многостраничного сайта</div>
+      <h1>vcolorite.ru</h1>
+      <div class="desc">Производство наружной рекламы · Подольск · 4 страницы · 14 рекомендаций</div>
+    </div>
+    <div class="stats">
+      <div class="stat" style="background:var(--redD)"><div class="n" style="color:var(--red)">3</div><div class="l" style="color:var(--red)">КРИТ</div></div>
+      <div class="stat" style="background:var(--orangeD)"><div class="n" style="color:var(--orange)">4</div><div class="l" style="color:var(--orange)">ВЫСОК</div></div>
+      <div class="stat" style="background:var(--cyanD)"><div class="n" style="color:var(--cyan)">2</div><div class="l" style="color:var(--cyan)">СРЕДН</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="overview">📊 Обзор</button>
+  <button class="tab" data-tab="pages">📄 Аудит страниц <span class="badge">14</span></button>
+  <button class="tab" data-tab="bn">🔥 Узкие горлышки <span class="badge">9</span></button>
+  <button class="tab" data-tab="todo">✅ ТЗ на улучшения <span class="badge">13</span></button>
+  <button class="tab" data-tab="lib">🧩 Компоненты</button>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<div class="content" id="t-overview">
+  <div class="overview-grid">
+    <div class="ov-card">
+      <div class="label">Бизнес</div>
+      <p><strong>ООО «КОЛОРИТ»</strong> — производство наружной рекламы: вывески, объемные буквы, неон, таблички. Собственное производство в Подольске. <strong>19+ лет</strong>, 500+ проектов, гарантия 2 года.</p>
+    </div>
+    <div class="ov-card">
+      <div class="label">Целевая аудитория (AJTBD)</div>
+      <div class="segment">A: Новый бизнес — открытие точки, нужна вывеска</div>
+      <div class="segment">B: Ребрендинг — замена старой/сломанной вывески</div>
+      <div class="segment">C: Интерьер / навигация — дизайнер, администратор ТЦ</div>
+      <div class="segment">D: B2B-заказчик технологий — УФ-печать, 3D, гибка</div>
+    </div>
+    <div class="ov-card">
+      <div class="label">Охват аудита</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Главная</span><span style="color:var(--muted)">5 проблем</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Объемные буквы</span><span style="color:var(--muted)">5 проблем</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Вывески</span><span style="color:var(--muted)">3 проблемы</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Согласование</span><span style="color:var(--muted)">1 проблема</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="finding">
+    <h3>🎯 Главная находка</h3>
+    <p>Сайт <strong>обучает технологиям</strong> (материалы, типы свечения, способы крепления), но <strong>не продаёт результат</strong>. Клиент — владелец кафе или магазина — не выбирает «молочный акрил 3мм». Он хочет видеть <strong>похожий проект</strong> и подумать «хочу так же».</p>
+    <p style="margin-top:12px">При этом у компании есть все козыри: 19 лет, собственное производство, 500+ проектов, 165+ отзывов. Но эти козыри <strong>спрятаны</strong>. На главной нет портфолио. На внутренних — есть блок «Наши цены» с реальными работами, но только на части страниц.</p>
+  </div>
+  <!-- Homepage screenshot -->
+  <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px">Превью главной страницы</div>
+  <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--card);margin-bottom:20px">
+    <div style="padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+      <div style="width:6px;height:6px;border-radius:50%;background:#ef4444"></div><div style="width:6px;height:6px;border-radius:50%;background:#fbbf24"></div><div style="width:6px;height:6px;border-radius:50%;background:#22c55e"></div>
+      <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-left:4px">vcolorite.ru</span>
+    </div>
+    <div style="position:relative;min-height:180px;background:#1a1a24">
+      <img src="https://image.thum.io/get/width/1200/crop/600/https://vcolorite.ru/" alt="Скриншот главной" style="width:100%;display:block;opacity:0;transition:opacity .5s" onload="this.style.opacity=1;this.nextElementSibling.style.display='none'" onerror="this.nextElementSibling.innerHTML='Скриншот не загрузился'" />
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">⏳ Загрузка...</div>
+    </div>
+  </div>
+</div>
+<div class="content hidden" id="t-pages"></div>
+
+<!-- ============ BOTTLENECKS ============ -->
+<div class="content hidden" id="t-bn"></div>
+
+<!-- ============ TODO ============ -->
+<div class="content hidden" id="t-todo"></div>
+
+<!-- ============ COMPONENTS ============ -->
+<div class="content hidden" id="t-lib"></div>
+
+<script>
+// ——— DATA ———
+const COMP_COLORS = {
+  HERO:'#818cf8', PROOF:'#22d3ee', PORTFOLIO:'#a78bfa', TRUST:'#34d399',
+  QUIZ:'#fbbf24', FAQ:'#f472b6', NEXT:'#2dd4bf', CROSS:'#c084fc',
+  ID:'#fb923c', PRICE:'#4ade80', PROC:'#60a5fa', WEAK:'#f87171',
+  OK:'#6b6b8a', BLOG:'#6b6b8a', SEO:'#f87171', NAV:'#6b6b8a'
+};
+
+const pages = [
+  { id:'home', title:'Главная', url:'vcolorite.ru/',
+    problems: [
+      {l:'c',t:'HERO продаёт акцию «-10% на монтаж» вместо компании. За 2 сек непонятно «кто вы и зачем оставаться»'},
+      {l:'c',t:'Нет портфолио: ни одного фото реального проекта на главной странице'},
+      {l:'c',t:'9 равнозначных плиток = паралич выбора. Технологии (УФ, 3D) в одном ряду с продуктами'},
+      {l:'h',t:'Нет соцдоков: 165+ отзывов на Я.Картах — ни один не на сайте'},
+      {l:'h',t:'SEO-текст 3000+ слов — стена, не помогающая принять решение'},
+    ],
+    before: [
+      {tag:'HERO',label:'Акция «Готовимся к весне, −10%»',h:64,p:1},
+      {tag:'NAV',label:'9 одинаковых плиток каталога',h:56,p:1},
+      {tag:'BLOG',label:'Блок блога (4 статьи)',h:44},
+      {tag:'SEO',label:'SEO-текст ~3000 слов',h:52,p:1},
+      {tag:'OK',label:'Футер: контакты, карта',h:36},
+    ],
+    after: [
+      {tag:'HERO',label:'Кто мы + позиционирование + главный CTA',h:64},
+      {tag:'PROOF',label:'19+ лет • 500+ проектов • Производство • Гарантия 2 г',h:36},
+      {tag:'PRICE',label:'4 продукта с ценами «от» (иерархия!)',h:52},
+      {tag:'PORTFOLIO',label:'6-8 проектов: фото на фасаде + цена',h:56},
+      {tag:'TRUST',label:'Почему выбирают нас (4 плитки)',h:44},
+      {tag:'QUIZ',label:'3 вопроса → расчёт стоимости',h:44},
+      {tag:'OK',label:'Отзывы с Яндекс.Карт (5 шт)',h:36},
+      {tag:'FAQ',label:'5 ключевых вопросов',h:36},
+      {tag:'NEXT',label:'Форма: опишите задачу → предложение',h:44},
+    ],
+    heroNow:'«Готовимся к весне.\nСветовые вывески "под ключ".\n−10% на монтаж + визуализация бесплатно»\n\nCTA: Рассчитать вывеску со скидкой',
+    heroNew:'«Вывески и наружная реклама под ключ\nв Подольске и Москве»\n\nСобственное производство → дизайн →\nсогласование → монтаж.\nБез посредников. Гарантия 2 года.\n\nCTA: Рассчитать стоимость за 15 минут',
+  },
+  { id:'letters', title:'Объемные буквы', url:'vcolorite.ru/obemnyie-bukvyi',
+    problems: [
+      {l:'h',t:'Обучает технологиям (молочный акрил 3мм), а не продаёт результат'},
+      {l:'h',t:'Нет идентификации «для кого» — человек не может себя узнать'},
+      {l:'m',t:'«Наши цены» — хороший блок с реальными работами! Но фото студийные. Усилить фото на фасадах'},
+      {l:'m',t:'CTA «Мы поможем определиться» × 3 — слабый, не объясняет выгоду'},
+      {l:'m',t:'Нет этапов «что будет после заявки»'},
+    ],
+    before: [
+      {tag:'HERO',label:'«Под ключ — заметно днём и ярко ночью»',h:64},
+      {tag:'OK',label:'Типы букв: 3 вида свечения',h:44},
+      {tag:'WEAK',label:'Каталог материалов: акрил, алюминий, 3D… (6 карточек)',h:52,p:1},
+      {tag:'OK',label:'Освещение: тёплый / дневной / холодный',h:40},
+      {tag:'OK',label:'Способы крепления: 3 варианта',h:40},
+      {tag:'PORTFOLIO',label:'★ «Наши цены» = реальные работы + стоимость ✓',h:52},
+    ],
+    after: [
+      {tag:'HERO',label:'«За 5-7 дней + визуализация на фасаде — бесплатно»',h:64},
+      {tag:'PROOF',label:'Производство • от 3 дней • Гарантия • Согласование',h:36},
+      {tag:'PORTFOLIO',label:'★ Усилить: фото НА ФАСАДАХ + CTA «хочу так же»',h:52},
+      {tag:'ID',label:'Для кого: кафе / магазин / салон / офис / ТЦ',h:44},
+      {tag:'OK',label:'Типы свечения (сжато, визуально)',h:36},
+      {tag:'PRICE',label:'«Что влияет на цену» вместо каталога материалов',h:44},
+      {tag:'PROC',label:'Как заказать: 5 шагов от заявки до монтажа',h:44},
+      {tag:'TRUST',label:'Гарантия + согласование + отзывы',h:40},
+      {tag:'FAQ',label:'6 вопросов про буквы',h:36},
+      {tag:'NEXT',label:'Форма: что написать + куда + фото фасада',h:44},
+      {tag:'CROSS',label:'→ Согласование / → Таблички',h:32},
+    ],
+    heroNow:'«Объемные буквы под ключ —\nзаметно днём и ярко ночью»\n\nВходит в стоимость: замер, дизайн,\nизготовление, доставка, монтаж\n\nCTA: Получить бесплатный макет',
+    heroNew:'«Объемные буквы для бизнеса —\nпод ключ за 5-7 дней»\n\nПокажем, как будет выглядеть на вашем\nфасаде ДО начала работ.\nот 15 000₽ • Замер + дизайн + визуализация\n\nCTA: Получить визуализацию на моём фасаде',
+  },
+  { id:'signs', title:'Вывески', url:'vcolorite.ru/vyiveski',
+    problems: [
+      {l:'h',t:'Каталог материалов (акрил / композит / ПВХ) вместо продажи результата'},
+      {l:'h',t:'Нет портфолио с ценами (в отличие от «Объемных букв»!)'},
+      {l:'m',t:'Нет «как заказать» и «что будет после заявки»'},
+    ],
+    before: [
+      {tag:'HERO',label:'«Вывески, которые приводят клиентов»',h:64},
+      {tag:'OK',label:'Типы: информ / интерьерные / панель-кронштейн',h:44},
+      {tag:'WEAK',label:'Каталог материалов: акрил / композит / ПВХ',h:48,p:1},
+      {tag:'OK',label:'Способы крепления',h:40},
+      {tag:'WEAK',label:'Нет блока портфолио / примеров с ценами',h:40,p:1},
+    ],
+    after: [
+      {tag:'HERO',label:'С конкретикой: сроки + цена от + визуализация',h:64},
+      {tag:'PROOF',label:'Полоса фактов',h:36},
+      {tag:'PORTFOLIO',label:'Реальные вывески на фасадах + цены',h:52},
+      {tag:'ID',label:'По типу бизнеса: кафе / магазин / ТЦ / офис',h:44},
+      {tag:'PROC',label:'5 шагов заказа',h:40},
+      {tag:'TRUST',label:'Согласование + гарантия + отзывы',h:40},
+      {tag:'NEXT',label:'Форма с загрузкой фото фасада',h:44},
+    ],
+    heroNow:'«Вывески, которые приводят клиентов»\n\nИзготовление за 3-5 дней с гарантией 2 года\n\nCTA: Получить бесплатный макет\nCTA: Рассчитать стоимость за 15 минут',
+    heroNew:'«Вывеска для бизнеса — видно днём,\nярко ночью»\n\nот 20 000₽ • Дизайн + изготовление +\nмонтаж за 5 дней\n\nCTA: Рассчитать и увидеть на своём фасаде',
+  },
+  { id:'coord', title:'Согласование', url:'vcolorite.ru/soglasovanie',
+    problems: [
+      {l:'m',t:'Лучшая страница на сайте! Но нет кейсов согласования и нет cross-sell в производство вывесок'},
+    ],
+    before: [
+      {tag:'HERO',label:'«Согласуем за 7-14 дней» + гарантия + чек-лист ✓',h:64},
+      {tag:'OK',label:'Почему важно + риски + документы + процесс',h:52},
+      {tag:'OK',label:'Этапы согласования',h:44},
+    ],
+    after: [
+      {tag:'HERO',label:'★ Оставить — сильный HERO!',h:64},
+      {tag:'OK',label:'+ Конкретные суммы штрафов (триггер страха)',h:40},
+      {tag:'PORTFOLIO',label:'+ Кейсы: «Согласовали для кафе X за 8 дней»',h:44},
+      {tag:'CROSS',label:'+ «Изготовление + согласование = под ключ!»',h:40},
+    ],
+    heroNow:'«Согласуем вывеску под ключ за 7-14 дней»\n\nБез штрафов, демонтажа и хождения\nпо инстанциям.\n\nCTA: Бесплатная консультация\nCTA: Скачать чек-лист',
+    heroNew:'Оставить текущий HERO — один из лучших\nна сайте.\n\nДобавить:\n• Конкретные суммы штрафов\n• Кейсы согласования\n• Cross-sell в производство вывесок',
+  },
+];
+
+const bottlenecks = [
+  {l:'c',title:'Нет портфолио на главной',desc:'Рекламное производство продаёт глазами. На главной — ноль фото. На внутренних — есть «Наши цены» с реальными работами, но только на части страниц.',fix:'Создать портфолио на главной (6-8 проектов). Усилить «Наши цены» — добавить фото на фасадах.'},
+  {l:'c',title:'Главная не маршрутизирует',desc:'9 одинаковых плиток. Технологии (УФ, 3D, гибка) в одном ряду с продуктами.',fix:'4 основных продукта крупно с ценами «от». Остальное — текстовые ссылки.'},
+  {l:'c',title:'HERO — акция вместо позиционирования',desc:'«Готовимся к весне, -10%» — сезонный оффер, через месяц устареет.',fix:'Постоянный HERO: кто мы + почему мы + CTA «Рассчитать стоимость за 15 минут».'},
+  {l:'h',title:'Нет этапов работы',desc:'Нигде не описано, что будет после заявки.',fix:'Блок «Как заказать» (5 шагов) на каждой продуктовой.'},
+  {l:'h',title:'CTA слабые',desc:'«Мы поможем определиться» × 3 — не объясняет выгоду.',fix:'«Получить визуализацию на фасаде — бесплатно», «Рассчитать за 15 минут».'},
+  {l:'h',title:'Каталог технологий вместо решений',desc:'Страницы про «молочный акрил 3мм» — клиент не знает, что это.',fix:'«Что влияет на цену» + «Для кого» по типу бизнеса.'},
+  {l:'h',title:'Нет отзывов на сайте',desc:'165+ отзывов на Я.Картах, ни один не на сайте.',fix:'Вынести 5 лучших + ссылка на все 165+.'},
+  {l:'m',title:'Два дизайна сайта',desc:'Новые страницы — современные, старые (/o-kompanii) — устаревшие.',fix:'Привести к единому стилю.'},
+  {l:'m',title:'SEO-тексты вместо контента',desc:'3000+ слов на главной — стена текста.',fix:'Убрать или вынести в блог. Заменить на портфолио и кейсы.'},
+];
+
+const compLib = [
+  ['HERO','Первый экран','Позиционирование + главный CTA. Совпадение с интентом поиска. H1 повторяет запрос.'],
+  ['PROOF','Полоса доверия','3-5 коротких фактов в строку. Без воды. Под Hero на каждой ключевой странице.'],
+  ['PORTFOLIO','Портфолио + цены','Реальные работы с ценами. Фото на фасадах, а не рендеры. CTA «хочу так же».'],
+  ['ID','Идентификация','«Для кого»: помочь посетителю узнать себя. Плитки по типу бизнеса или задаче.'],
+  ['PRICE','Ценообразование','«Что влияет на цену» или «от X₽». Прозрачность снимает страх.'],
+  ['TRUST','Снятие рисков','Гарантия, отзывы, документы, согласование. Ставить рядом с моментом решения.'],
+  ['QUIZ','Подбор / квиз','3-5 вопросов. Обязательно «не знаю». Выход: расчёт + рекомендация.'],
+  ['PROC','Этапы работы','Что будет после заявки: 5 шагов. Снимает страх первого шага.'],
+  ['FAQ','Частые вопросы','6-8 вопросов, которые «убивают» заявки если их нет. На категориях и карточках.'],
+  ['NEXT','Следующий шаг','Форма + «что нужно указать» + «что будет дальше» (SLA: ответим за 15 мин).'],
+  ['CROSS','Кросс-продажа','Мост в смежное направление. «Вместе с буквами часто заказывают…»'],
+];
+
+// ——— RENDER FUNCTIONS ———
+function makeTag(type) {
+  const c = COMP_COLORS[type] || '#6b6b8a';
+  return `<span class="tag" style="color:${c};background:${c}18">${type}</span>`;
+}
+
+function makeSev(l) {
+  const m = {c:['sev-c','КРИТ'],h:['sev-h','ВЫСОК'],m:['sev-m','СРЕДН']};
+  const [cls,label] = m[l]||['','—'];
+  return `<span class="sev ${cls}">${label}</span>`;
+}
+
+function makeWfBlock(b) {
+  const c = COMP_COLORS[b.tag] || '#6b6b8a';
+  const isProblem = b.p;
+  const bg = isProblem ? 'var(--redD)' : (c+'0a');
+  const border = isProblem ? 'rgba(248,113,113,.3)' : (c+'30');
+  return `<div class="wf-block${isProblem?' problem-block':''}" style="height:${b.h||48}px;background:${bg};border:1px solid ${border};border-left:3px solid ${isProblem?'var(--red)':c}">
+    ${b.tag ? makeTag(b.tag) : ''}
+    <span class="label">${b.label}</span>
+    ${isProblem ? '<span class="warn">⚠</span>' : ''}
+  </div>`;
+}
+
+function makeWire(blocks, title) {
+  return `<div class="wire">
+    <div class="wire-title">${title}</div>
+    <div class="wire-frame">
+      <div class="wire-chrome">
+        <div class="dot" style="background:#ef4444"></div>
+        <div class="dot" style="background:#fbbf24"></div>
+        <div class="dot" style="background:#22c55e"></div>
+        <div class="wire-bar"></div>
+      </div>
+      ${blocks.map(makeWfBlock).join('')}
+    </div>
+  </div>`;
+}
+
+// ——— RENDER PAGES TAB ———
+let activePage = 'home';
+let heroView = 'now';
+
+function renderPages() {
+  const el = document.getElementById('t-pages');
+  const p = pages.find(x=>x.id===activePage);
+  el.innerHTML = `
+    <div class="page-btns">${pages.map(pg=>`<button class="page-btn${pg.id===activePage?' active':''}" data-pg="${pg.id}">${pg.title} <span style="opacity:.5">(${pg.problems.length})</span></button>`).join('')}</div>
+    <div class="url-bar mono">https://${p.url} <a href="https://${p.url}" target="_blank" style="color:var(--accent);text-decoration:none;margin-left:8px">↗ открыть</a></div>
+    <div class="screenshot-wrap" style="margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--card)">
+      <div style="padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+        <div class="dot" style="background:#ef4444"></div><div class="dot" style="background:#fbbf24"></div><div class="dot" style="background:#22c55e"></div>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-left:4px">Скриншот: https://${p.url}</span>
+      </div>
+      <div style="position:relative;min-height:200px;background:#1a1a24">
+        <img
+          src="https://image.thum.io/get/width/1200/crop/700/https://${p.url}"
+          alt="Скриншот ${p.title}"
+          style="width:100%;display:block;opacity:0;transition:opacity .5s"
+          onload="this.style.opacity=1;this.nextElementSibling.style.display='none'"
+          onerror="this.style.display='none';this.nextElementSibling.innerHTML='<div style=padding:40px;text-align:center;color:#6b6b8a>Скриншот не загрузился. <a href=https://${p.url} target=_blank style=color:#818cf8>Открыть сайт →</a></div>'"
+        />
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center">
+          <div style="color:var(--muted);font-size:12px">⏳ Загрузка скриншота...</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:8px">Почему может не конвертить</div>
+    ${p.problems.map(pr=>`<div class="problem">${makeSev(pr.l)}<span class="text">${pr.t}</span></div>`).join('')}
+    <div class="wires">
+      ${makeWire(p.before,'❌ Как сейчас')}
+      ${makeWire(p.after,'✅ Новая структура')}
+    </div>
+    <div class="hero-cmp">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">СРАВНЕНИЕ HERO-БЛОКА</div>
+      <div class="hero-btns">
+        <button class="hero-btn ${heroView==='now'?'active-now':''}" data-hv="now">HERO сейчас</button>
+        <button class="hero-btn ${heroView==='new'?'active-new':''}" data-hv="new">HERO предложение</button>
+      </div>
+      <div class="hero-text mono ${heroView==='now'?'hero-text-now':'hero-text-new'}">${heroView==='now'?p.heroNow:p.heroNew}</div>
+    </div>
+  `;
+  el.querySelectorAll('.page-btn').forEach(btn=>{
+    btn.onclick = ()=>{ activePage=btn.dataset.pg; heroView='now'; renderPages(); };
+  });
+  el.querySelectorAll('.hero-btn').forEach(btn=>{
+    btn.onclick = ()=>{ heroView=btn.dataset.hv; renderPages(); };
+  });
+}
+
+// ——— RENDER BOTTLENECKS ———
+function renderBn() {
+  document.getElementById('t-bn').innerHTML = `
+    <div style="font-size:15px;font-weight:800;color:var(--white);margin-bottom:16px">Узкие горлышки — приоритизированный список</div>
+    ${bottlenecks.map((b,i)=>`<div class="bn-item">
+      <div class="bn-num">${i+1}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">${makeSev(b.l)}<span class="bn-title">${b.title}</span></div>
+        <div class="bn-desc">${b.desc}</div>
+        <div class="bn-fix"><strong>Решение:</strong> ${b.fix}</div>
+      </div>
+    </div>`).join('')}`;
+}
+
+// ——— RENDER TODO ———
+function renderTodo() {
+  const quick = [
+    ['Заменить HERO на главной','Главная','1 день','+15-25% глубина','green'],
+    ['PROOF BAR на каждую страницу','Все','1 день','+10-15% доверие','green'],
+    ['Усилить CTA: «визуализация на фасаде»','Все','1 день','+20-30% клики','green'],
+    ['Блок «Как заказать» (5 шагов)','Продуктовые','1 день','↓ трение','green'],
+    ['5 отзывов с Я.Карт + ссылка','Главная','2 часа','+15% доверие','green'],
+  ];
+  const struct = [
+    ['Страница портфолио с фильтрами','Новая + блоки','3-5 дн','Главный драйвер','orange'],
+    ['Иерархия продуктов на главной','Главная','1-2 дн','↓ bounce rate','orange'],
+    ['QUIZ: 3 вопроса → расчёт','Главная','2-3 дн','+10-20% лиды','orange'],
+  ];
+  const content = [
+    'Фотосъёмка 15-20 проектов на реальных фасадах (день + вечер)',
+    '3-5 мини-кейсов: задача → решение → фото → отзыв',
+    'Видео производства 30 сек (цех, оборудование, процесс)',
+    'Визуализации «до / после»: макет → фото готовой вывески',
+    '5 скриншотов отзывов с Яндекс.Карт',
+  ];
+  document.getElementById('t-todo').innerHTML = `
+    <div class="section-title" style="color:var(--green)">⚡ Быстрые правки (1-3 дня)</div>
+    ${quick.map(f=>`<div class="todo-row"><span class="what">${f[0]}</span><span style="color:var(--muted)">${f[1]}</span><span style="color:var(--cyan)">${f[2]}</span><span style="color:var(--${f[4]});font-weight:700">${f[3]}</span></div>`).join('')}
+    <div class="section-title" style="color:var(--orange);margin-top:24px">🏗 Структурные изменения (1-2 недели)</div>
+    ${struct.map(f=>`<div class="todo-row"><span class="what">${f[0]}</span><span style="color:var(--muted)">${f[1]}</span><span style="color:var(--cyan)">${f[2]}</span><span style="color:var(--${f[4]});font-weight:700">${f[3]}</span></div>`).join('')}
+    <div class="section-title" style="color:var(--purple);margin-top:24px">📸 Контент (участие клиента)</div>
+    ${content.map((t,i)=>`<div class="content-task"><span class="num">${i+1}</span><span>${t}</span></div>`).join('')}`;
+}
+
+// ——— RENDER COMPONENTS ———
+function renderLib() {
+  document.getElementById('t-lib').innerHTML = `
+    <div style="font-size:15px;font-weight:800;color:var(--white);margin-bottom:4px">Библиотека конверсионных компонентов</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Стандартизированные блоки для сборки каждой страницы</div>
+    <div class="comp-grid">${compLib.map(([tag,title,desc])=>{
+      const c = COMP_COLORS[tag]||'#6b6b8a';
+      return `<div class="comp-card" style="border-left:3px solid ${c}">
+        ${makeTag(tag)}
+        <div class="title">${title}</div>
+        <div class="desc">${desc}</div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+// ——— TAB SWITCHING ———
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const id = tab.dataset.tab;
+    ['overview','pages','bn','todo','lib'].forEach(t=>{
+      document.getElementById('t-'+t).classList.toggle('hidden', t!==id);
+    });
+    if(id==='pages') renderPages();
+    if(id==='bn') renderBn();
+    if(id==='todo') renderTodo();
+    if(id==='lib') renderLib();
+  };
+});
+
+// Init
+renderPages(); renderBn(); renderTodo(); renderLib();
+</script>
+</body>
+</html>

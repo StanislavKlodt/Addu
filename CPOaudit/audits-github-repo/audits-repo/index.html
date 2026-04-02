@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO-Аудиты · add-u.ru</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#08080d;color:#d4d4e8;font-family:'Manrope',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:60px 24px}
+h1{font-size:32px;font-weight:900;color:#f0f0ff;margin-bottom:4px}
+.sub{font-size:12px;color:#818cf8;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.desc{font-size:14px;color:#6b6b8a;margin-bottom:40px;max-width:500px;text-align:center;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;width:100%;max-width:900px}
+.card{background:#111118;border:1px solid #1e1e2e;border-radius:12px;overflow:hidden;transition:all .2s;cursor:pointer;text-decoration:none;color:inherit}
+.card:hover{border-color:#818cf8;transform:translateY(-2px);box-shadow:0 8px 30px rgba(129,140,248,.1)}
+.card-img{height:180px;background:#1a1a24;position:relative;overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover;object-position:top}
+.card-body{padding:16px}
+.card-title{font-size:18px;font-weight:800;color:#f0f0ff;margin-bottom:4px}
+.card-url{font-size:12px;color:#6b6b8a;font-family:monospace;margin-bottom:8px}
+.card-stats{display:flex;gap:8px}
+.card-stat{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.05em}
+.empty{text-align:center;color:#6b6b8a;font-size:14px;padding:40px;grid-column:1/-1}
+</style>
+</head>
+<body>
+<div class="sub">CRO-аудиты сайтов</div>
+<h1>Аудиты конверсии</h1>
+<p class="desc">Интерактивные отчёты по конверсионной оптимизации многостраничных сайтов. Каждый аудит содержит анализ ЦА, карту маршрутов, аудит страниц и конкретные рекомендации.</p>
+
+<div class="grid">
+  <!-- Audit cards - add new ones here -->
+  <a class="card" href="./vcolorite/">
+    <div class="card-img">
+      <img src="https://image.thum.io/get/width/800/crop/400/https://vcolorite.ru/" alt="vcolorite.ru" onerror="this.parentElement.style.background='linear-gradient(135deg,#818cf815,#f8717108)'"/>
+    </div>
+    <div class="card-body">
+      <div class="card-title">vcolorite.ru</div>
+      <div class="card-url">Производство наружной рекламы · Подольск</div>
+      <div class="card-stats">
+        <span class="card-stat" style="background:#f8717115;color:#f87171">3 крит</span>
+        <span class="card-stat" style="background:#fbbf2415;color:#fbbf24">4 высок</span>
+        <span class="card-stat" style="background:#22d3ee15;color:#22d3ee">2 средн</span>
+        <span class="card-stat" style="background:#818cf815;color:#818cf8">4 страницы</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Template for adding new audits:
+  <a class="card" href="./{folder}/">
+    <div class="card-img">
+      <img src="https://image.thum.io/get/width/800/crop/400/https://{domain}/" alt="{domain}"/>
+    </div>
+    <div class="card-body">
+      <div class="card-title">{domain}</div>
+      <div class="card-url">{description}</div>
+      <div class="card-stats">
+        <span class="card-stat" style="background:#f8717115;color:#f87171">N крит</span>
+        <span class="card-stat" style="background:#fbbf2415;color:#fbbf24">N высок</span>
+        <span class="card-stat" style="background:#22d3ee15;color:#22d3ee">N средн</span>
+      </div>
+    </div>
+  </a>
+  -->
+</div>
+</body>
+</html>
